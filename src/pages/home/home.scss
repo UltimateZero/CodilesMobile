@@ -1,3 +1,28 @@
 page-home {
+    .highlighted {
+        color: red
+    }
 
+    .item-title {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
+    .total-services {
+        font-size: 1.0em;
+        justify-content:flex-start;
+        text-align: left;
+    }
+
+    .total-bill {
+        font-size: 1.0em;
+        justify-content:flex-end;
+        text-align: right;
+    }
+
+    .no-padding {
+        padding: 0px !important;
+    }
 }
+
+

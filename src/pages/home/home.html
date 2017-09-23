@@ -3,16 +3,41 @@
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>Home</ion-title>
+    <ion-title>Accounts</ion-title>
   </ion-navbar>
+  <ion-searchbar [showCancelButton]="shouldShowCancel" (ionInput)="filterItems($event)">
+  </ion-searchbar>
 </ion-header>
 
-<ion-content padding>
-  <h3>Ionic Menu Starter</h3>
-
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will show you the way.
-  </p>
-
-  <button ion-button secondary menuToggle>Toggle Menu</button>
+<ion-content>
+  <ion-refresher (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="arrow-dropdown" pullingText="Pull to refresh" refreshingSpinner="circles" refreshingText="Refreshing...">
+    </ion-refresher-content>
+  </ion-refresher>
+  <p [hidden]="items.length > 0">Nothing here!</p>
+  <ion-list>
+    <ion-row *ngFor="let item of items">
+      <ion-col col-1>
+        <ion-item class="no-padding">
+          <ion-checkbox class="no-padding" [(ngModel)]="item.selected" (click)="itemSelectToggled(item)"></ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col col-10 class="no-padding">
+        <ion-item (click)="itemTapped($event, item)" tappable class="no-padding">
+          <h2 class="item-title" [innerHTML]="item.title"></h2>
+          <span class="total-services">Total Services: {{item.services}}</span>
+          <span class="total-bill">Total Bill: {{item.bill}}</span>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-list>
+  <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more accounts..."></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>
+
+<ion-footer>
+    <button (click)="selectAll($event)">{{footerSelect}}</button>
+    <ion-label item-right>TOTAL: {{currentTotal}}</ion-label>
+    <button (click)="payClicked($event)" [disabled]="currentTotal == 0">PAY</button>
+</ion-footer>
