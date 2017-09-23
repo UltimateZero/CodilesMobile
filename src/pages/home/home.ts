@@ -63,7 +63,7 @@ export class HomePage {
           services: account.total_services,
           bill: account.total_bill,
           selected: false,
-          title: account.id
+          title: this.getMatchingTitle(account.id)
         })
       }
       this.updateItems(this.originalItems);
@@ -86,10 +86,35 @@ export class HomePage {
     });
   }
 
+  payClicked(event) {
+    console.log('Pay clicked');
+  }
+
   doInfinite(infiniteScroll) {
     console.log('infinite')
     this.currentSkip += 20;
-    setTimeout(() => infiniteScroll.complete(), 2000)
+    this.accountService.getAccounts(this.currentSkip, this.searchText)
+    .then(accounts=> {
+      // this.originalItems = [];
+      for (let account of <Array<{ id: string, total_services: number, total_bill: number }>>accounts) {
+        this.originalItems.push({
+          account: account.id,
+          services: account.total_services,
+          bill: account.total_bill,
+          selected: false,
+          title: this.getMatchingTitle(account.id)
+        })
+      }
+      this.updateItems(this.originalItems);
+      this.refreshSelectionState();
+      this.updateCurrentTotal();
+      
+      infiniteScroll.complete();
+    })
+    .catch(err => {
+      console.error(err.message);
+      infiniteScroll.complete();
+    })
   }
 
   selectAll() {
@@ -132,13 +157,40 @@ export class HomePage {
     this.searchText = ev.target.value || '';
     this.currentSkip = 0;
     console.log('Search: ' + this.searchText);
-    let filteredItems = this.searchText == '' ? this.originalItems : this.originalItems.filter(el => el.account.indexOf(this.searchText) !== -1);
-    filteredItems = filteredItems.map(el => {
-      el.title = el.account.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlighted">$1</span>');
-      return el;
-    });
-    this.updateItems(filteredItems);
-    this.refreshSelectionState();
+    this.accountService.getAccounts(this.currentSkip, this.searchText)
+    .then(accounts=> {
+      this.originalItems = [];
+      for (let account of <Array<{ id: string, total_services: number, total_bill: number }>>accounts) {
+        this.originalItems.push({
+          account: account.id,
+          services: account.total_services,
+          bill: account.total_bill,
+          selected: false,
+          title: account.id
+        })
+      }
+      let filteredItems = this.searchText == '' ? this.originalItems : this.originalItems.filter(el => el.account.indexOf(this.searchText) !== -1);
+      filteredItems = filteredItems.map(el => {
+        el.title = el.account.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlighted">$1</span>');
+        return el;
+      });
+
+      this.updateItems(filteredItems);
+      this.refreshSelectionState();
+      this.updateCurrentTotal();
+      
+    })
+    .catch(err => {
+      console.error(err.message);
+    })
+
+    // let filteredItems = this.searchText == '' ? this.originalItems : this.originalItems.filter(el => el.account.indexOf(this.searchText) !== -1);
+    // filteredItems = filteredItems.map(el => {
+    //   el.title = el.account.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlighted">$1</span>');
+    //   return el;
+    // // });
+    // this.updateItems(filteredItems);
+    // this.refreshSelectionState();
   }
 
   updateItems(items) {
@@ -146,7 +198,12 @@ export class HomePage {
   }
 
   updateCurrentTotal() {
-    this.currentTotal = this.originalItems.filter(el => el.selected).map(el => el.bill).reduce((sum, value) => sum + value, 0);
+    this.currentTotal = this.originalItems.filter(el => el.selected).map(el => el.bill).reduce((sum, value) => sum + (value || 0), 0);
     console.log(this.currentTotal);
+  }
+
+  getMatchingTitle(accountId) {
+    if(this.searchText === '') return accountId;
+    return accountId.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlighted">$1</span>');
   }
 }

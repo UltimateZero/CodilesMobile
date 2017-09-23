@@ -15,22 +15,27 @@
     </ion-refresher-content>
   </ion-refresher>
   <p [hidden]="items.length > 0">Nothing here!</p>
-  <ion-list>
-    <ion-row *ngFor="let item of items">
-      <ion-col col-1>
-        <ion-item class="no-padding">
-          <ion-checkbox class="no-padding" [(ngModel)]="item.selected" (click)="itemSelectToggled(item)"></ion-checkbox>
-        </ion-item>
-      </ion-col>
-      <ion-col col-10 class="no-padding">
-        <ion-item (click)="itemTapped($event, item)" tappable class="no-padding">
-          <h2 class="item-title" [innerHTML]="item.title"></h2>
-          <span class="total-services">Total Services: {{item.services}}</span>
-          <span class="total-bill">Total Bill: {{item.bill}}</span>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-  </ion-list>
+  <ion-grid>
+      <ion-row *ngFor="let item of items">
+        <ion-col col-1>
+            <ion-checkbox [(ngModel)]="item.selected" (click)="itemSelectToggled(item)"></ion-checkbox>
+        </ion-col>
+        <ion-col (click)="itemTapped($event, item)" tappable>
+          <ion-row>
+              <ion-col><h2 class="item-title" [innerHTML]="item.title"></h2></ion-col>
+          </ion-row>
+          <ion-row >
+            <ion-col>
+                <span class="total-services">Total Services: <span class="total-services-content"> {{item.services}}</span></span>
+            </ion-col>
+            <ion-col>
+                <span class="total-bill">Total Bill: <span class="total-bill-content">{{item.bill  | currency : 'sar' : true :'.2-2'}}</span></span>
+              </ion-col>
+          </ion-row>
+        </ion-col>
+        </ion-row>
+
+  </ion-grid>
   <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
     <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more accounts..."></ion-infinite-scroll-content>
   </ion-infinite-scroll>
@@ -38,6 +43,6 @@
 
 <ion-footer>
     <button (click)="selectAll($event)">{{footerSelect}}</button>
-    <ion-label item-right>TOTAL: {{currentTotal}}</ion-label>
+    <ion-label item-right>TOTAL: {{currentTotal | currency : 'sar' : true :'.2-2' }}</ion-label>
     <button (click)="payClicked($event)" [disabled]="currentTotal == 0">PAY</button>
 </ion-footer>

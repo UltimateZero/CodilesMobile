@@ -9,15 +9,23 @@ page-home {
     }
 
     .total-services {
-        font-size: 1.0em;
         justify-content:flex-start;
         text-align: left;
+        color: grey
+    }
+
+    .total-services-content {
+        color: black
     }
 
     .total-bill {
-        font-size: 1.0em;
         justify-content:flex-end;
         text-align: right;
+        color: grey
+    }
+
+    .total-bill-content {
+        color: black
     }
 
     .no-padding {
